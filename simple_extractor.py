@@ -24,6 +24,7 @@ import torchvision.transforms as transforms
 import networks
 from utils.transforms import transform_logits
 from datasets.simple_extractor_dataset import SimpleFolderDataset
+import cv2
 
 dataset_settings = {
     'lip': {
@@ -233,7 +234,7 @@ def main():
     if not os.path.exists(args.output_dir):
         os.makedirs(args.output_dir)
 
-    palette = get_head_neck_palette(num_classes)
+    palette = get_head_neck_palette_lip(num_classes)
     with torch.no_grad():
         for idx, batch in enumerate(tqdm(dataloader)):
             image, meta = batch
@@ -323,19 +324,39 @@ def gen_mask(datasets="lip", model_restore="checkpoints/lip.pth", gpu="0", input
             upsample_output = upsample(output[0][-1][0].unsqueeze(0))
             upsample_output = upsample_output.squeeze()
             upsample_output = upsample_output.permute(1, 2, 0)  # CHW -> HWC
+            
+            
 
             logits_result = transform_logits(
                 upsample_output.data.cpu().numpy(), c, s, w, h, input_size=input_size)
             parsing_result = np.argmax(logits_result, axis=2)
+            
+            
+            # increase the size of logi
+            
+            
             parsing_result_path = os.path.join(
                 output_dir, img_name[:-4] + '.segment.png')
             output_img = Image.fromarray(
                 np.asarray(parsing_result, dtype=np.uint8))
+
             output_img.putpalette(palette)
             output_img.save(parsing_result_path)
+            
+            # increase the area of white color from parsing result
+            parsing_result = cv2.imread(parsing_result_path)
+            parsing_result = cv2.cvtColor(parsing_result, cv2.COLOR_BGR2GRAY)
+            parsing_result = cv2.threshold(parsing_result, 128, 255, cv2.THRESH_BINARY)[1]
+            kernel = np.ones((5,5),np.uint8)
+            dilation = cv2.dilate(parsing_result,kernel,iterations = 8)
+            cv2.imwrite(parsing_result_path, dilation)
+            
+
             if logits:
                 logits_result_path = os.path.join(
                     output_dir, img_name[:-4] + '.npy')
                 np.save(logits_result_path, logits_result)
+                
+                
 
     return parsing_result_path
