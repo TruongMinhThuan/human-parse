@@ -29,15 +29,45 @@ dataset_settings = {
     'lip': {
         'input_size': [473, 473],
         'num_classes': 20,
-        'label': ['Background', 'Hat', 'Hair', 'Glove', 'Sunglasses', 'Upper-clothes', 'Dress', 'Coat',
-                  'Socks', 'Pants', 'Jumpsuits', 'Scarf', 'Skirt', 'Face', 'Left-arm', 'Right-arm',
-                  'Left-leg', 'Right-leg', 'Left-shoe', 'Right-shoe']
+        'label': [
+            'Background',
+            'Hat',
+            'Hair',
+            'Glove',
+            'Sunglasses',
+            'Upper-clothes',
+            'Dress',
+            'Coat',
+            'Socks',
+            'Pants',
+            'Jumpsuits',
+            'Scarf',
+            'Skirt',
+            'Face', 'Left-arm', 'Right-arm',
+            'Left-leg', 'Right-leg', 'Left-shoe', 'Right-shoe']
     },
     'atr': {
         'input_size': [512, 512],
         'num_classes': 18,
-        'label': ['Background', 'Hat', 'Hair', 'Sunglasses', 'Upper-clothes', 'Skirt', 'Pants', 'Dress', 'Belt',
-                  'Left-shoe', 'Right-shoe', 'Face', 'Left-leg', 'Right-leg', 'Left-arm', 'Right-arm', 'Bag', 'Scarf']
+        'label': [
+            'Background',
+            'Hat',
+            'Hair',
+            'Sunglasses',
+            'Upper-clothes',
+            'Skirt',
+            'Pants',
+            'Dress',
+            'Belt',
+            'Left-shoe',
+            'Right-shoe',
+            'Face',
+            'Left-leg',
+            'Right-leg',
+            'Left-arm',
+            'Right-arm',
+            'Bag',
+            'Scarf']
     },
     'pascal': {
         'input_size': [512, 512],
@@ -95,7 +125,42 @@ def get_palette(num_cls):
     return palette
 
 
-def get_head_neck_palette(num_cls):
+def get_head_neck_palette_atr(num_cls):
+    """ Returns the color map for visualizing the segmentation mask.
+    Args:
+        num_cls: Number of classes
+    Returns:
+        The color map
+    """
+
+    palette = [
+        0, 0, 0,  # Background
+        255, 255, 255,  # Hat
+        255, 255, 255,  # Hair
+        255, 255, 255,  # Sunglasseshttps://snafty-train-lora.s3.ap-northeast-1.amazonaws.com/img-to-img/medias/segment_images/segment_mask_transparent_20240423-17071713892039.png
+        0, 0, 0,  # Upper-clothes
+        0, 0, 0,  # Skirt
+        0, 0, 0,  # Pants
+        0, 0, 0,  # Dress
+        0, 0, 0,  # Belt
+        0, 0, 0,  # Left-shoe
+        0, 0, 0,  # Right-shoe
+        255, 255, 255,  # Face
+        0, 0, 0,  # Left-leg
+        0, 0, 0,  # Right-leg
+        0, 0, 0,  # Left-arm
+        0, 0, 0,  # Right-arm
+        0, 0, 0,  # Bag
+        0, 0, 0,  # Scarf
+    ]
+
+    # # transform palette red color to white color
+    # palette[0] = 255
+
+    return palette
+
+
+def get_head_neck_palette_lip(num_cls):
     """ Returns the color map for visualizing the segmentation mask.
     Args:
         num_cls: Number of classes
@@ -117,7 +182,7 @@ def get_head_neck_palette(num_cls):
         0, 0, 0,  # Right-shoe
         255, 255, 255,  # Face
         0, 0, 0,  # Left-leg
-        0, 0, 0,  # Right-leg
+        255, 255, 255,  # Right-leg
         0, 0, 0,  # Left-arm
         0, 0, 0,  # Right-arm
         0, 0, 0,  # Bag
@@ -242,7 +307,7 @@ def gen_mask(datasets="lip", model_restore="checkpoints/lip.pth", gpu="0", input
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    palette = get_head_neck_palette(num_classes)
+    palette = get_head_neck_palette_lip(num_classes)
     with torch.no_grad():
         for idx, batch in enumerate(tqdm(dataloader)):
             image, meta = batch
