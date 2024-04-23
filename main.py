@@ -60,10 +60,21 @@ def upload_image(uploadImageRequest: UploadImageSchema, request: Request):
     local_path = image_service.save_image_url_to_file(
         uploadImageRequest.image_url, image_path)
 
+    
+    # Lip
     segment_path = gen_mask(
         output_dir=upload_folder,
-        input_dir=upload_folder
+        input_dir=upload_folder,
     )
+
+    # Atr
+    # segment_path = gen_mask(
+    #     output_dir=upload_folder,
+    #     input_dir=upload_folder,
+    #     datasets="atr",
+    #     model_restore="checkpoints/atr.pth",
+    # )
+    
 
     print("segment_path", segment_path)
     domain = request.base_url
@@ -81,4 +92,4 @@ def upload_image(uploadImageRequest: UploadImageSchema, request: Request):
 
 # @app.get("medias/{image_path}")
 # def get_image(image_path: str):
-#     return FileResponse(image_path)
+#     return FileResponse(image_path)get_palette

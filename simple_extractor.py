@@ -95,6 +95,41 @@ def get_palette(num_cls):
     return palette
 
 
+def get_head_neck_palette(num_cls):
+    """ Returns the color map for visualizing the segmentation mask.
+    Args:
+        num_cls: Number of classes
+    Returns:
+        The color map
+    """
+
+    palette = [
+        0, 0, 0,  # Background
+        255, 255, 255,  # Hat
+        255, 255, 255,  # Hair
+        255, 255, 255,  # Sunglasses
+        0, 0, 0,  # Upper-clothes
+        0, 0, 0,  # Skirt
+        0, 0, 0,  # Pants
+        0, 0, 0,  # Dress
+        0, 0, 0,  # Belt
+        0, 0, 0,  # Left-shoe
+        0, 0, 0,  # Right-shoe
+        255, 255, 255,  # Face
+        0, 0, 0,  # Left-leg
+        0, 0, 0,  # Right-leg
+        0, 0, 0,  # Left-arm
+        0, 0, 0,  # Right-arm
+        0, 0, 0,  # Bag
+        0, 0, 0,  # Scarf
+    ]
+
+    # # transform palette red color to white color
+    # palette[0] = 255
+
+    return palette
+
+
 def main():
     args = get_arguments()
 
@@ -133,7 +168,7 @@ def main():
     if not os.path.exists(args.output_dir):
         os.makedirs(args.output_dir)
 
-    palette = get_palette(num_classes)
+    palette = get_head_neck_palette(num_classes)
     with torch.no_grad():
         for idx, batch in enumerate(tqdm(dataloader)):
             image, meta = batch
@@ -207,7 +242,7 @@ def gen_mask(datasets="lip", model_restore="checkpoints/lip.pth", gpu="0", input
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    palette = get_palette(num_classes)
+    palette = get_head_neck_palette(num_classes)
     with torch.no_grad():
         for idx, batch in enumerate(tqdm(dataloader)):
             image, meta = batch
@@ -237,6 +272,5 @@ def gen_mask(datasets="lip", model_restore="checkpoints/lip.pth", gpu="0", input
                 logits_result_path = os.path.join(
                     output_dir, img_name[:-4] + '.npy')
                 np.save(logits_result_path, logits_result)
-                
-                
+
     return parsing_result_path
