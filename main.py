@@ -12,7 +12,8 @@ import os
 from simple_extractor import gen_mask
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-
+from PIL import Image
+import requests
 
 app = FastAPI()
 
@@ -44,7 +45,7 @@ def read_item(item_id: int, q: Union[str, None] = None):
     return {"item_id": item_id, "q": q}
 
 
-@app.post("/upload-image")
+@app.post("/upload-image-transparent")
 def upload_image(uploadImageRequest: UploadImageSchema, request: Request):
 
     time_str = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
@@ -60,7 +61,6 @@ def upload_image(uploadImageRequest: UploadImageSchema, request: Request):
     local_path = image_service.save_image_url_to_file(
         uploadImageRequest.image_url, image_path)
 
-    
     # Lip
     segment_path = gen_mask(
         output_dir=upload_folder,
@@ -74,19 +74,84 @@ def upload_image(uploadImageRequest: UploadImageSchema, request: Request):
     #     datasets="atr",
     #     model_restore="checkpoints/atr.pth",
     # )
-    
 
     print("segment_path", segment_path)
     domain = request.base_url
     # image_url = request.build_absolute_uri( f"/medias/{segment_path}")
     image_url = f"{domain}{segment_path}"
-    
+
     print("segment_image_url", image_url)
-    
+
     return {
         "message": "Image uploaded successfully",
         "image_path": local_path,
         "image_url": image_url
+    }
+
+
+@app.post("/upload-image-segmentation")
+def upload_image_transparent(uploadImageRequest: UploadImageSchema, request: Request):
+
+    time_str = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+
+    upload_folder = f"medias/upload/{time_str}"
+
+    # create folder if not exist
+    if not os.path.exists(f"medias/upload/{time_str}"):
+        os.makedirs(f"medias/upload/{time_str}")
+
+    image_path = f"{upload_folder}/uploaded_image_{time_str}.jpg"
+    transparent_image_path = f"{upload_folder}/uploaded_image_{time_str}.transparent.png"
+
+    local_path = image_service.save_image_url_to_file(
+        uploadImageRequest.image_url, image_path)
+
+    # Lip
+    segment_path = gen_mask(
+        output_dir=upload_folder,
+        input_dir=upload_folder,
+    )
+
+    
+    original_image_url = uploadImageRequest.image_url
+    mask_image_path = f"{segment_path}"
+
+    origin_image = Image.open(requests.get(original_image_url, stream=True).raw)
+
+    overlay_image = Image.open(mask_image_path)
+
+    origin_image.paste(overlay_image, (0, 0), overlay_image)
+
+    origin_image.save(transparent_image_path)
+
+
+    #  convert white color to transparent
+    img = Image.open(transparent_image_path)
+    img = img.convert("RGBA")
+    datas = img.getdata()
+    new_data = []
+    for item in datas:
+        if item[0] == 255 and item[1] == 255 and item[2] == 255:
+            new_data.append((255, 255, 255, 0))
+        else:
+            new_data.append(item)
+    img.putdata(new_data)
+    img.save(transparent_image_path)
+
+    
+    
+
+    domain = request.base_url
+    # image_url = request.build_absolute_uri( f"/medias/{segment_path}")
+    transparent_image_url = f"{domain}{transparent_image_path}"
+    mask_image_url = f"{domain}{mask_image_path}"
+    
+
+    return {
+        "message": "Image uploaded successfully",
+        "original_image_url": uploadImageRequest.image_url,
+        "transparent_image_url": transparent_image_url,
+        "mask_image_url": mask_image_url
     }
 
 
