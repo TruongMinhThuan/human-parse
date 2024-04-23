@@ -9,7 +9,7 @@ from schemas.upload_image_schema import UploadImageSchema
 from services import image_service
 import datetime
 import os
-from simple_extractor import gen_mask
+from simple_extractor import gen_mask_scale, gen_mask_without_scale
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from PIL import Image
@@ -62,7 +62,7 @@ def upload_image(uploadImageRequest: UploadImageSchema, request: Request):
         uploadImageRequest.image_url, image_path)
 
     # Lip
-    segment_path = gen_mask(
+    segment_path = gen_mask_wihout_scale(
         output_dir=upload_folder,
         input_dir=upload_folder,
     )
@@ -90,6 +90,46 @@ def upload_image(uploadImageRequest: UploadImageSchema, request: Request):
 
 
 @app.post("/upload-image-segmentation")
+def upload_image_mask(uploadImageRequest: UploadImageSchema, request: Request):
+
+    time_str = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+
+    upload_folder = f"medias/upload/{time_str}"
+
+    # create folder if not exist
+    if not os.path.exists(f"medias/upload/{time_str}"):
+        os.makedirs(f"medias/upload/{time_str}")
+
+    image_path = f"{upload_folder}/uploaded_image_{time_str}.jpg"
+
+    local_path = image_service.save_image_url_to_file(
+        uploadImageRequest.image_url, image_path)
+
+
+
+    # Lip
+    segment_mask_scale_path = gen_mask_scale(
+        output_dir=upload_folder,
+        input_dir=upload_folder,
+        mask_scale=14
+    )
+    print("segment_mask_scale_path", segment_mask_scale_path)
+
+    domain = request.base_url
+    # image_url = request.build_absolute_uri( f"/medias/{segment_path}")
+    # transparent_image_url = f"{domain}{transparent_image_path}"
+    segment_mask_scale_path_url = f"{domain}{segment_mask_scale_path}"
+    
+
+    return {
+        "message": "Image uploaded successfully",
+        "original_image_url": uploadImageRequest.image_url,
+        # "transparent_image_url": transparent_image_url,
+        "mask_image_url": segment_mask_scale_path_url
+    }
+
+
+@app.post("/upload-image-segmentation-transparent")
 def upload_image_transparent(uploadImageRequest: UploadImageSchema, request: Request):
 
     time_str = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
@@ -101,27 +141,31 @@ def upload_image_transparent(uploadImageRequest: UploadImageSchema, request: Req
         os.makedirs(f"medias/upload/{time_str}")
 
     image_path = f"{upload_folder}/uploaded_image_{time_str}.jpg"
-    transparent_image_path = f"{upload_folder}/uploaded_image_{time_str}.transparent.png"
 
     local_path = image_service.save_image_url_to_file(
         uploadImageRequest.image_url, image_path)
 
-    # Lip
-    segment_path = gen_mask(
-        output_dir=upload_folder,
-        input_dir=upload_folder,
-    )
 
     
+    # Lip
+    segment_mask_scale_path = gen_mask_scale(
+        output_dir=upload_folder,
+        input_dir=upload_folder,
+        mask_scale=8
+    )
+    
+ 
+    print("segment_mask_scale_path : ", segment_mask_scale_path)
+
     original_image_url = uploadImageRequest.image_url
-    mask_image_path = f"{segment_path}"
 
     origin_image = Image.open(requests.get(original_image_url, stream=True).raw)
 
-    overlay_image = Image.open(mask_image_path)
+    overlay_image = Image.open(segment_mask_scale_path)
 
     origin_image.paste(overlay_image, (0, 0), overlay_image)
-
+    
+    transparent_image_path = f"{upload_folder}/uploaded_image_{time_str}.transparent.png"
     origin_image.save(transparent_image_path)
 
 
@@ -140,18 +184,18 @@ def upload_image_transparent(uploadImageRequest: UploadImageSchema, request: Req
 
     
     
+    print("segment_mask_scale_path", segment_mask_scale_path)
 
     domain = request.base_url
     # image_url = request.build_absolute_uri( f"/medias/{segment_path}")
-    transparent_image_url = f"{domain}{transparent_image_path}"
-    mask_image_url = f"{domain}{mask_image_path}"
+    # transparent_image_url = f"{domain}{transparent_image_path}"
+    transparent_image_path_url = f"{domain}{transparent_image_path}"
     
 
     return {
         "message": "Image uploaded successfully",
         "original_image_url": uploadImageRequest.image_url,
-        "transparent_image_url": transparent_image_url,
-        "mask_image_url": mask_image_url
+        "transparent_image_url": transparent_image_path_url,
     }
 
 
