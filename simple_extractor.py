@@ -348,7 +348,7 @@ def gen_mask(datasets="lip", model_restore="checkpoints/lip.pth", gpu="0", input
             parsing_result = cv2.cvtColor(parsing_result, cv2.COLOR_BGR2GRAY)
             parsing_result = cv2.threshold(parsing_result, 128, 255, cv2.THRESH_BINARY)[1]
             kernel = np.ones((5,5),np.uint8)
-            dilation = cv2.dilate(parsing_result,kernel,iterations = 8)
+            dilation = cv2.dilate(parsing_result,kernel,iterations = 12)
             cv2.imwrite(parsing_result_path, dilation)
             
 
