@@ -111,7 +111,7 @@ def upload_image_mask(uploadImageRequest: UploadImageSchema, request: Request):
     segment_mask_scale_path = gen_mask_scale(
         output_dir=upload_folder,
         input_dir=upload_folder,
-        mask_scale=14
+        mask_scale=11
     )
     print("segment_mask_scale_path", segment_mask_scale_path)
 
