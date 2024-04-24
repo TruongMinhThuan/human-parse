@@ -307,9 +307,9 @@ def gen_mask_scale(datasets="pascal", model_restore="checkpoints/lip.pth", gpu="
     # if not args.gpu == 'None':
     #     os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
 
-    num_classes = dataset_settings[datasets]['num_classes']
-    input_size = dataset_settings[datasets]['input_size']
-    label = dataset_settings[datasets]['label']
+    num_classes = dataset_settings['pascal']['num_classes']
+    input_size = dataset_settings['pascal']['input_size']
+    label = dataset_settings['pascal']['label']
     print("Evaluating total class number {} with {}".format(num_classes, label))
 
     model = networks.init_model(

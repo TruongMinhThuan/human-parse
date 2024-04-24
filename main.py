@@ -109,11 +109,12 @@ def upload_image_mask(uploadImageRequest: UploadImageSchema, request: Request):
 
     # Lip
     segment_mask_scale_path = gen_mask_scale(
+        datasets="pascal",
         output_dir=upload_folder,
         input_dir=upload_folder,
         mask_scale=5
     )
-    print("segment_mask_scale_path", segment_mask_scale_path)
+    print("=========== segment_mask_scale_path", segment_mask_scale_path)
 
     domain = request.base_url
     # image_url = request.build_absolute_uri( f"/medias/{segment_path}")
