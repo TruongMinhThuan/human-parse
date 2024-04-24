@@ -133,6 +133,8 @@ def get_head_neck_palette_atr(num_cls):
     Returns:
         The color map
     """
+    
+    print("====== ATRRRRRR")
 
     palette = [
         0, 0, 0,  # Background
@@ -168,6 +170,8 @@ def get_head_neck_palette_lip(num_cls):
     Returns:
         The color map
     """
+    
+    print("====== LIPPPPPP")
 
     palette = [
         0, 0, 0,  # Background
