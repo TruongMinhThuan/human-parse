@@ -294,7 +294,7 @@ if __name__ == '__main__':
     main()
 
 
-def gen_mask_scale(datasets="lip", model_restore="checkpoints/lip.pth", gpu="0", input_dir="inputs", output_dir="outputs", logits=False, mask_scale=8):
+def gen_mask_scale(datasets="pascal", model_restore="checkpoints/lip.pth", gpu="0", input_dir="inputs", output_dir="outputs", logits=False, mask_scale=8):
 
     # gpus = [int(i) for i in args.gpu.split(',')]
     # assert len(gpus) == 1
