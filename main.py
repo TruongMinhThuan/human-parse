@@ -109,7 +109,7 @@ def upload_image_mask(uploadImageRequest: UploadImageSchema, request: Request):
 
     # Lip
     segment_mask_scale_path = gen_mask_scale(
-        datasets="lip",
+        datasets="pascal",
         output_dir=upload_folder,
         input_dir=upload_folder,
         mask_scale=5
