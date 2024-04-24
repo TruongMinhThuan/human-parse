@@ -331,7 +331,7 @@ def gen_mask_scale(datasets="lip", model_restore="checkpoints/lip.pth", gpu="0",
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    palette = get_head_neck_palette_lip(num_classes)
+    palette = get_head_neck_palette_pascal(num_classes)
     with torch.no_grad():
         for idx, batch in enumerate(tqdm(dataloader)):
             image, meta = batch
