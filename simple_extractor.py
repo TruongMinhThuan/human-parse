@@ -195,6 +195,29 @@ def get_head_neck_palette_lip(num_cls):
 
     return palette
 
+def get_head_neck_palette_pascal(num_cls):
+    """ Returns the color map for visualizing the segmentation mask.
+    Args:
+        num_cls: Number of classes
+    Returns:
+        The color map
+    """
+
+    pascal = [
+        0, 0, 0,  # Head
+        255, 255, 255,  # Hat
+        0, 0, 0,  # Background
+        0, 0, 0,  # Background
+        0, 0, 0,  # Upper-clothes
+        0, 0, 0,  # Skirt
+        0, 0, 0,  # Pants
+    ]
+
+    # # transform palette red color to white color
+    # palette[0] = 255
+
+    return pascal
+
 
 def main():
     args = get_arguments()
@@ -234,7 +257,7 @@ def main():
     if not os.path.exists(args.output_dir):
         os.makedirs(args.output_dir)
 
-    palette = get_head_neck_palette_lip(num_classes)
+    palette = get_head_neck_palette_pascal(num_classes)
     with torch.no_grad():
         for idx, batch in enumerate(tqdm(dataloader)):
             image, meta = batch
