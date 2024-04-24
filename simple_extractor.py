@@ -211,8 +211,8 @@ def get_head_neck_palette_pascal(num_cls):
 
     pascal = [
         0, 0, 0,  # Head
-        0, 0, 0,  # Head
         255, 255, 255,  # Hat
+        0, 0, 0,  # Head
         0, 0, 0,  # Background
         0, 0, 0,  # Background
         0, 0, 0,  # Upper-clothes
